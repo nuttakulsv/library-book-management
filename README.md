@@ -138,3 +138,54 @@ npm test
 
 ส่ง token ใน Header: `Authorization: Bearer <token>`
 
+## ถ้ามีเวลามากขึ้นจะปรับปรุงอะไร
+
+-การเก็บรูปปกหนังสือ
+ตอนนี้เก็บไว้ที่ local (./uploads) ซึ่งเหมาะกับการ demo หรือ run เครื่องเดียว แต่ถ้าระบบต้อง scale หลาย instance รูปจะไม่ถูกแชร์กัน ควรย้ายไปเก็บบน object storage เช่น S3 หรือ MinIO แทน (ถ้าอยากติดตั้งง่าย MinIO เวอร์ชันประมาณปี 2023 จะตั้ง public bucket ได้ค่อนข้างสะดวก)
+
+-เพิ่มระบบวันครบกำหนดคืนหนังสือ (Due Date)
+ตอนนี้การยืมหนังสือยังไม่มี due date และยังไม่มี logic สำหรับแจ้งเตือนหรือคิดค่าปรับกรณีคืนช้า ซึ่งเป็น feature ที่ระบบ library จริงควรมี
+
+-เพิ่ม Refresh Token ในระบบ Auth
+ตอนนี้ใช้แค่ access token อย่างเดียว พอ token หมดอายุก็ต้อง login ใหม่ ถ้ามี refresh token จะช่วยให้ UX ดีขึ้น และไม่ต้องให้ user login บ่อย
+
+-เพิ่ม Rate Limiting
+ตอนนี้ API ยังไม่มีการจำกัด request เช่น login หรือ endpoint สำคัญ ๆ อาจเสี่ยงโดน brute force หรือ spam request ได้ ควรเพิ่ม throttle หรือ rate limit
+
+-เพิ่ม API Caching
+endpoint ที่ใช้ query บ่อย เช่น list books หรือ search books ยังไม่มี caching ถ้าใช้งานจริงอาจเพิ่ม Redis cache เพื่อลดโหลด database
+
+-E-mail Verification และ Password Reset
+ตอนนี้ยังไม่มีระบบยืนยันอีเมลหรือรีเซ็ตรหัสผ่าน ซึ่งเป็น feature มาตรฐานของระบบที่มี authentication
+
+-Soft Delete สำหรับหนังสือ
+ตอนนี้การลบหนังสือเป็นการลบออกจาก database เลย (hard delete) ถ้าเป็นระบบจริงควรใช้ soft delete เพื่อให้ยังสามารถตรวจสอบย้อนหลังได้
+
+-Structured Logging
+ตอนนี้ logging ยังเป็นแบบพื้นฐาน ถ้าใช้งานจริงควรเพิ่ม structured logging (เช่น log เป็น JSON) เพื่อให้ monitor และ debug ใน production ได้ง่ายขึ้น
+
+-ทำ CI/CD ทั้ง backed, frontend
+
+-Monitoring & notification
+
+## Trade-offs ในการทำเวอร์ชันนี้
+
+เนื่องจากโจทย์จำกัดเวลาประมาณ 3–4 ชั่วโมง เลยเลือกวิธีที่ทำให้ระบบสามารถรันและ demo ได้เร็วที่สุดก่อน โดยมี trade-offs บางอย่างดังนี้
+
+-Database
+เลือกใช้ PostgreSQL ผ่าน Docker เพื่อให้สามารถเริ่มระบบได้ง่ายโดยไม่ต้องติดตั้ง database เพิ่ม ข้อดีคือ setup เร็ว จะไม่เหมาะกับระบบที่มี concurrent writes จำนวนมาก และ มีปัญหาเรื่องความปลอดภัย ในอนาคตควรใช้ database ที่มีวง VPN ครอบหรือ จำกัดการเข้าถึง 
+
+
+-การเก็บรูปปกหนังสือ
+ตอนนี้เก็บไฟล์ไว้ที่ local filesystem เพื่อให้ setup ง่ายและไม่ต้องพึ่งพา storage ภายนอก ข้อดีคือเริ่มต้นได้เร็ว แต่ข้อจำกัดคือไม่เหมาะกับการ scale หลาย instance และต้องจัดการเรื่อง backup เอง 
+
+-Authentication
+เลือกใช้ access token อย่างเดียวเพื่อให้ implementation ไม่ซับซ้อน ข้อดีคือระบบ auth ทำได้เร็วและตรงตาม requirement แต่ข้อจำกัดคือเมื่อ token หมดอายุ ผู้ใช้ต้อง login ใหม่ เพราะยังไม่มี refresh token
+
+-Admin Account
+มีการสร้าง default admin account สำหรับใช้ demo ระบบได้ทันที ทำให้ทดสอบ feature ต่าง ๆ ได้ง่าย แต่ในระบบจริงควรมีขั้นตอนให้เปลี่ยนรหัสผ่านหรือกำหนดผ่าน environment variable แทน สามารถเข้าถึงได้โดย id: admin , pw: 1234
+
+-Docker Setup
+ใช้ docker compose เพื่อรัน backend, database และ service อื่น ๆ ในคำสั่งเดียว ทำให้ environment สามารถ setup ได้ง่ายและเหมือนกันทุกเครื่อง แต่ผู้ที่ต้องการรันระบบจะต้องมี Docker ติดตั้งไว้ก่อน
+
+-เน้นเก็บตัวระบบให้เป็นไปตาม requiredment ที่ต้องการโดยทั้งหมด โดยส่วนใหญ่เป็นการ vibe code โดยใช้ AI ช่วยและตรวจสอบ โดยใช้ test spec เข้าช่วยอีกที ภายในอนาคต คาดว่าน่าจะใช้ code reviewer ของทาง cluade ซึ่ง ณ วันนี้วันที่ 10 Mar พึ่งมีการปล่อยออกมาให้ลองเล่นกัน
