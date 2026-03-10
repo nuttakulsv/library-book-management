@@ -93,7 +93,7 @@ npm run dev
 ## โครงสร้างโปรเจกต์
 
 ```
-skilllane/
+library-book-managment/
 ├── book-library-backend/    # NestJS API
 ├── book-library-frontend/   # Next.js
 ├── docker-compose.yml
@@ -103,6 +103,28 @@ skilllane/
 ├── backend_uploads/        # รูปที่อัปโหลด
 └── postgres_data/          # ข้อมูล PostgreSQL (สร้างอัตโนมัติ)
 ```
+
+## Code Architecture and Design Patterns
+
+### Backend (NestJS)
+
+แบ่งเป็น modules ตาม domain ครับ — Auth, Books, Users, Images — แต่ละ module มี Controller + Service + DTOs แยกกันชัดเจน ใช้ NestJS DI inject Repository กับ ConfigService เข้าไปใน Service/Guard
+
+ข้อมูลใช้ TypeORM Repository กับ entities หลัก ๆ คือ Book, User, BorrowRecord, Image ส่วน input validation ใช้ class-validator (IsString, IsNotEmpty ฯลฯ) กับ ValidationPipe แบบ global ตั้ง whitelist, transform ไว้แล้ว
+
+เรื่อง auth ใช้ Passport JWT strategy — route ที่ต้อง login ใส่ JwtAuthGuard ส่วน admin-only ใส่ AdminGuard เช็ค `isAdministration` อีกชั้น response ทั้งหมดห่อด้วย ResponseInterceptor ให้ออกมาเป็น `{ status: 'success', data }` แบบเดียวกันทุก endpoint
+
+### Frontend (Next.js)
+
+ใช้ App Router ครับ routes ตามโฟลเดอร์ layout แยกเป็น public / admin / protected ตาม role
+
+ฝั่งเรียก API มี service layer (`auth.service`, `books.service` ฯลฯ) ใช้ axios instance เดียวกัน ที่มี interceptors ใส่ token ให้อัตโนมัติและแปลง error เป็นข้อความที่ user อ่านได้
+
+ส่วน data fetching ใช้ TanStack Query ผ่าน custom hooks เช่น `useBooks`, `useAuth`, `useUsers` — รวม logic เรียก service + cache invalidation ไว้ใน hook เดียว layout หลักห่อด้วย AuthProvider, ToastProvider, QueryProvider และมี Query Keys Factory (`booksKeys.list()`, `booksKeys.detail(id)`) เพื่อให้ invalidation สอดคล้องกัน
+
+### API Contract
+
+response ทุก endpoint ใช้รูปแบบ `{ status: 'success', data: T }` ส่ง token ใน header `Authorization: Bearer <token>` ส่วน error จาก backend ส่ง `message` มา (string หรือ array) ฝั่ง frontend จะแปลงเป็นข้อความที่ user อ่านได้
 
 ## Environment
 
