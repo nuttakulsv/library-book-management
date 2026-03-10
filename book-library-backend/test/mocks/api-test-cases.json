@@ -1,0 +1,153 @@
+{
+  "auth": {
+    "POST /auth/register": [
+      {
+        "case": "success",
+        "input": { "username": "newuser", "password": "pass1234" },
+        "expectedStatus": 201,
+        "expectedBody": { "token": "string", "user": { "id": "number", "username": "newuser" } }
+      },
+      {
+        "case": "duplicate username",
+        "input": { "username": "admin", "password": "pass1234" },
+        "expectedStatus": 409,
+        "expectedError": "Username already exists"
+      },
+      {
+        "case": "password too short",
+        "input": { "username": "newuser", "password": "123" },
+        "expectedStatus": 400
+      }
+    ],
+    "POST /auth/login": [
+      {
+        "case": "success by username",
+        "input": { "username": "admin", "password": "1234" },
+        "expectedStatus": 201,
+        "expectedBody": { "token": "string", "user": { "username": "admin" } }
+      },
+      {
+        "case": "success by email",
+        "input": { "username": "admin@library.local", "password": "1234" },
+        "expectedStatus": 201
+      },
+      {
+        "case": "invalid username",
+        "input": { "username": "wronguser", "password": "1234" },
+        "expectedStatus": 401,
+        "expectedError": "Invalid username or password"
+      },
+      {
+        "case": "wrong password",
+        "input": { "username": "admin", "password": "wrongpass" },
+        "expectedStatus": 401
+      }
+    ],
+    "GET /auth/session": [
+      {
+        "case": "authenticated",
+        "headers": { "Authorization": "Bearer valid-token" },
+        "expectedStatus": 200,
+        "expectedBody": { "id": "number", "username": "string" }
+      },
+      {
+        "case": "no token",
+        "headers": {},
+        "expectedStatus": 401
+      }
+    ],
+    "POST /auth/logout": [
+      {
+        "case": "with Bearer token",
+        "headers": { "Authorization": "Bearer token123" },
+        "expectedStatus": 200,
+        "expectedBody": { "message": "Logged out successfully" }
+      },
+      {
+        "case": "with query token",
+        "query": { "token": "query-token" },
+        "expectedStatus": 200
+      }
+    ]
+  },
+  "books": {
+    "GET /books": [
+      { "case": "all books", "expectedStatus": 200 },
+      { "case": "with search", "query": { "search": "Clean" }, "expectedStatus": 200 },
+      { "case": "paginated", "query": { "page": 1, "limit": 20 }, "expectedStatus": 200 },
+      { "case": "paginated with sort", "query": { "page": 1, "limit": 10, "sortBy": "title", "sortOrder": "asc" }, "expectedStatus": 200 }
+    ],
+    "GET /books/:id": [
+      { "case": "found", "params": { "id": 1 }, "expectedStatus": 200 },
+      { "case": "not found", "params": { "id": 999 }, "expectedStatus": 404 }
+    ],
+    "POST /books": [
+      {
+        "case": "create without file",
+        "body": { "title": "New Book", "author": "Author", "isbn": "978-0-13-000000-0", "publicationYear": 2024 },
+        "expectedStatus": 201
+      },
+      {
+        "case": "create with duplicate ISBN",
+        "body": { "title": "Dup", "author": "A", "isbn": "978-0-13-235088-4", "publicationYear": 2024 },
+        "expectedStatus": 400
+      }
+    ],
+    "PUT /books/:id": [
+      { "case": "update title", "params": { "id": 1 }, "body": { "title": "Updated" }, "expectedStatus": 200 },
+      { "case": "remove cover", "params": { "id": 1 }, "body": { "removeCover": true }, "expectedStatus": 200 },
+      { "case": "not found", "params": { "id": 999 }, "body": {}, "expectedStatus": 404 }
+    ],
+    "DELETE /books/:id": [
+      { "case": "success", "params": { "id": 1 }, "expectedStatus": 200 },
+      { "case": "not found", "params": { "id": 999 }, "expectedStatus": 404 }
+    ],
+    "POST /books/:id/borrow": [
+      { "case": "success", "params": { "id": 1 }, "auth": true, "expectedStatus": 201 },
+      { "case": "no copies", "params": { "id": 2 }, "auth": true, "expectedStatus": 400 },
+      { "case": "unauthorized", "params": { "id": 1 }, "auth": false, "expectedStatus": 401 }
+    ],
+    "POST /books/:id/return": [
+      { "case": "success", "params": { "id": 1 }, "auth": true, "expectedStatus": 200 },
+      { "case": "not borrowed", "params": { "id": 1 }, "auth": true, "expectedStatus": 400 }
+    ],
+    "GET /books/borrowed/my": [
+      { "case": "has borrowed", "auth": true, "expectedStatus": 200 },
+      { "case": "no auth", "auth": false, "expectedStatus": 401 }
+    ],
+    "GET /books/borrowed/all": [
+      { "case": "admin", "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "forbidden", "auth": true, "admin": false, "expectedStatus": 403 }
+    ]
+  },
+  "users": {
+    "GET /users": [
+      { "case": "all users", "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "with search q", "query": { "q": "admin" }, "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "paginated", "query": { "page": 1, "limit": 10 }, "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "forbidden non-admin", "auth": true, "admin": false, "expectedStatus": 403 }
+    ]
+  },
+  "images": {
+    "GET /images": [
+      { "case": "paginated", "query": { "page": 1, "limit": 20 }, "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "with search", "query": { "search": "cover" }, "auth": true, "admin": true, "expectedStatus": 200 }
+    ],
+    "GET /images/:id": [
+      { "case": "found", "params": { "id": 1 }, "expectedStatus": 200 },
+      { "case": "not found", "params": { "id": 999 }, "expectedStatus": 404 }
+    ],
+    "GET /images/:id/file": [
+      { "case": "stream file", "params": { "id": 1 }, "expectedStatus": 200, "expectedHeaders": { "Content-Type": "image/jpeg" } },
+      { "case": "not found", "params": { "id": 999 }, "expectedStatus": 404 }
+    ],
+    "POST /images": [
+      { "case": "upload jpeg", "file": "validJpeg", "auth": true, "admin": true, "expectedStatus": 201 },
+      { "case": "forbidden", "auth": true, "admin": false, "expectedStatus": 403 }
+    ],
+    "DELETE /images/:id": [
+      { "case": "success", "params": { "id": 1 }, "auth": true, "admin": true, "expectedStatus": 200 },
+      { "case": "not found", "params": { "id": 999 }, "auth": true, "admin": true, "expectedStatus": 404 }
+    ]
+  }
+}

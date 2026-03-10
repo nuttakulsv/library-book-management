@@ -1,0 +1,361 @@
+{
+  "users": {
+    "admin": {
+      "id": 1,
+      "memberId": "MADMIN01",
+      "username": "admin",
+      "email": "admin@library.local",
+      "password": "hashed_password_1234",
+      "isAdministration": true,
+      "authToken": "admin-token-abc123",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    "regular": {
+      "id": 2,
+      "memberId": "M001",
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "hashed_password_5678",
+      "isAdministration": false,
+      "authToken": "user-token-xyz789",
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    },
+    "noEmail": {
+      "id": 3,
+      "memberId": "M002",
+      "username": "member2",
+      "email": null,
+      "password": "hashed_password",
+      "isAdministration": false,
+      "authToken": null,
+      "createdAt": "2024-02-01T08:00:00.000Z"
+    },
+    "noMemberId": {
+      "id": 4,
+      "memberId": null,
+      "username": "legacy_user",
+      "email": "legacy@test.com",
+      "password": "hashed_password",
+      "isAdministration": false,
+      "authToken": "legacy-token",
+      "createdAt": "2023-12-01T12:00:00.000Z"
+    },
+    "list": [
+      { "id": 1, "memberId": "MADMIN01", "username": "admin", "isAdministration": true },
+      { "id": 2, "memberId": "M001", "username": "testuser", "isAdministration": false },
+      { "id": 3, "memberId": "M002", "username": "member2", "isAdministration": false }
+    ]
+  },
+  "usersResponse": {
+    "admin": {
+      "id": 1,
+      "memberId": "MADMIN01",
+      "username": "admin",
+      "email": "admin@library.local",
+      "isAdministration": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    "regular": {
+      "id": 2,
+      "memberId": "M001",
+      "username": "testuser",
+      "email": "test@example.com",
+      "isAdministration": false,
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    }
+  },
+  "auth": {
+    "login": {
+      "valid": { "username": "admin", "password": "1234" },
+      "invalidUsername": { "username": "wronguser", "password": "1234" },
+      "invalidPassword": { "username": "admin", "password": "wrongpass" },
+      "emptyUsername": { "username": "", "password": "1234" },
+      "loginByEmail": { "username": "admin@library.local", "password": "1234" }
+    },
+    "register": {
+      "valid": { "username": "newuser", "password": "pass1234" },
+      "shortPassword": { "username": "newuser", "password": "123" },
+      "duplicateUsername": { "username": "admin", "password": "pass1234" }
+    },
+    "response": {
+      "success": {
+        "token": "abc123token456",
+        "user": {
+          "id": 1,
+          "memberId": "MADMIN01",
+          "username": "admin",
+          "email": "admin@library.local",
+          "isAdministration": true,
+          "createdAt": "2024-01-01T00:00:00.000Z"
+        }
+      }
+    },
+    "session": {
+      "admin": {
+        "id": 1,
+        "memberId": "MADMIN01",
+        "username": "admin",
+        "email": "admin@library.local",
+        "isAdministration": true,
+        "createdAt": "2024-01-01T00:00:00.000Z"
+      }
+    },
+    "tokens": {
+      "valid": "Bearer abc123token456",
+      "invalid": "invalid-token-xyz",
+      "expired": "Bearer expired-token-789"
+    }
+  },
+  "books": {
+    "withCover": {
+      "id": 1,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "isbn": "978-0-13-235088-4",
+      "publicationYear": 2008,
+      "coverImageId": 1,
+      "coverImage": null,
+      "totalQuantity": 3,
+      "availableQuantity": 2,
+      "createdAt": "2024-01-10T09:00:00.000Z",
+      "updatedAt": "2024-01-10T09:00:00.000Z"
+    },
+    "noCover": {
+      "id": 2,
+      "title": "Design Patterns",
+      "author": "Gang of Four",
+      "isbn": "978-0-201-63361-0",
+      "publicationYear": 1994,
+      "coverImageId": null,
+      "coverImage": null,
+      "totalQuantity": 1,
+      "availableQuantity": 0,
+      "createdAt": "2024-01-11T10:00:00.000Z",
+      "updatedAt": "2024-01-11T10:00:00.000Z"
+    },
+    "allBorrowed": {
+      "id": 3,
+      "title": "Refactoring",
+      "author": "Martin Fowler",
+      "isbn": "978-0-13-475759-9",
+      "publicationYear": 2018,
+      "coverImageId": 2,
+      "totalQuantity": 2,
+      "availableQuantity": 0,
+      "createdAt": "2024-01-12T11:00:00.000Z",
+      "updatedAt": "2024-01-12T11:00:00.000Z"
+    },
+    "list": [
+      { "id": 1, "title": "Clean Code", "author": "Robert C. Martin", "availableQuantity": 2 },
+      { "id": 2, "title": "Design Patterns", "author": "Gang of Four", "availableQuantity": 0 },
+      { "id": 3, "title": "Refactoring", "author": "Martin Fowler", "availableQuantity": 0 }
+    ]
+  },
+  "booksDto": {
+    "create": {
+      "minimal": {
+        "title": "New Book",
+        "author": "New Author",
+        "isbn": "978-0-13-000000-0",
+        "publicationYear": 2024
+      },
+      "withQuantity": {
+        "title": "New Book",
+        "author": "New Author",
+        "isbn": "978-0-13-000000-1",
+        "publicationYear": 2024,
+        "totalQuantity": 5
+      },
+      "withCoverImage": {
+        "title": "New Book",
+        "author": "New Author",
+        "isbn": "978-0-13-000000-2",
+        "publicationYear": 2024,
+        "coverImageId": 1
+      },
+      "duplicateIsbn": {
+        "title": "Duplicate",
+        "author": "Author",
+        "isbn": "978-0-13-235088-4",
+        "publicationYear": 2024
+      }
+    },
+    "update": {
+      "titleOnly": { "title": "Updated Title" },
+      "isbnChange": { "isbn": "978-0-13-000000-9" },
+      "removeCover": { "removeCover": true },
+      "quantityChange": { "totalQuantity": 10 },
+      "fullUpdate": {
+        "title": "New Title",
+        "author": "New Author",
+        "isbn": "978-0-13-000000-8",
+        "publicationYear": 2025,
+        "totalQuantity": 5
+      }
+    }
+  },
+  "images": {
+    "jpeg": {
+      "id": 1,
+      "fileName": "cover-1234567890.jpg",
+      "filePath": "/uploads/cover-1234567890.jpg",
+      "mimeType": "image/jpeg",
+      "fileSize": 102400,
+      "originalName": "book-cover.jpg",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    "png": {
+      "id": 2,
+      "fileName": "cover-1234567891.png",
+      "filePath": "/uploads/cover-1234567891.png",
+      "mimeType": "image/png",
+      "fileSize": 204800,
+      "originalName": "illustration.png",
+      "width": 800,
+      "height": 600,
+      "createdAt": "2024-01-02T00:00:00.000Z"
+    },
+    "webp": {
+      "id": 3,
+      "fileName": "cover-1234567892.webp",
+      "filePath": "/uploads/cover-1234567892.webp",
+      "mimeType": "image/webp",
+      "fileSize": 51200,
+      "originalName": null,
+      "createdAt": "2024-01-03T00:00:00.000Z"
+    },
+    "list": [
+      { "id": 1, "fileName": "cover-1234567890.jpg", "mimeType": "image/jpeg" },
+      { "id": 2, "fileName": "cover-1234567891.png", "mimeType": "image/png" }
+    ]
+  },
+  "borrowRecords": {
+    "active": {
+      "id": 1,
+      "userId": 2,
+      "bookId": 1,
+      "borrowedAt": "2024-02-01T09:00:00.000Z",
+      "returnedAt": null,
+      "book": { "id": 1, "title": "Clean Code", "author": "Robert C. Martin" },
+      "user": { "id": 2, "username": "testuser", "memberId": "M001" }
+    },
+    "returned": {
+      "id": 2,
+      "userId": 2,
+      "bookId": 2,
+      "borrowedAt": "2024-01-20T10:00:00.000Z",
+      "returnedAt": "2024-01-25T14:00:00.000Z",
+      "book": { "id": 2, "title": "Design Patterns", "author": "Gang of Four" },
+      "user": { "id": 2, "username": "testuser", "memberId": "M001" }
+    },
+    "list": [
+      { "id": 1, "bookId": 1, "userId": 2, "borrowedAt": "2024-02-01T09:00:00.000Z" },
+      { "id": 2, "bookId": 3, "userId": 3, "borrowedAt": "2024-02-02T11:00:00.000Z" }
+    ]
+  },
+  "query": {
+    "pagination": {
+      "firstPage": { "page": 1, "limit": 20 },
+      "secondPage": { "page": 2, "limit": 10 },
+      "largeLimit": { "page": 1, "limit": 100 },
+      "withSort": { "page": 1, "limit": 20, "sortBy": "title", "sortOrder": "asc" },
+      "sortDesc": { "page": 1, "limit": 20, "sortBy": "createdAt", "sortOrder": "desc" }
+    },
+    "search": {
+      "byTitle": { "search": "Clean" },
+      "byAuthor": { "search": "Martin" },
+      "byIsbn": { "search": "978-0-13" },
+      "empty": { "search": "" },
+      "withPagination": { "page": 1, "limit": 20, "search": "Design" }
+    },
+    "users": {
+      "byQ": { "q": "admin" },
+      "bySearch": { "search": "test" },
+      "paginated": { "page": 1, "limit": 20, "q": "user" }
+    }
+  },
+  "requests": {
+    "withAuthUser": {
+      "user": {
+        "id": 1,
+        "memberId": "MADMIN01",
+        "username": "admin",
+        "email": "admin@library.local",
+        "isAdministration": true,
+        "createdAt": "2024-01-01T00:00:00.000Z"
+      },
+      "headers": { "authorization": "Bearer abc123token456" }
+    },
+    "withRegularUser": {
+      "user": {
+        "id": 2,
+        "memberId": "M001",
+        "username": "testuser",
+        "email": "test@example.com",
+        "isAdministration": false,
+        "createdAt": "2024-01-15T10:30:00.000Z"
+      },
+      "headers": { "authorization": "Bearer user-token-xyz789" }
+    },
+    "noUser": {
+      "user": null,
+      "headers": {}
+    },
+    "tokenInQuery": {
+      "user": { "id": 1, "username": "admin" },
+      "headers": {},
+      "query": { "token": "query-token-123" }
+    }
+  },
+  "responses": {
+    "deleteSuccess": { "message": "Book deleted successfully" },
+    "imageDeleteSuccess": { "message": "Image deleted successfully" },
+    "logoutSuccess": { "message": "Logged out successfully" },
+    "paginated": {
+      "data": [],
+      "meta": {
+        "total": 0,
+        "page": 1,
+        "limit": 20,
+        "totalPages": 1,
+        "hasNext": false,
+        "hasPrev": false
+      }
+    }
+  },
+  "errors": {
+    "messages": {
+      "userNotFound": "User not found",
+      "invalidCredentials": "Invalid username or password",
+      "usernameExists": "Username already exists",
+      "bookNotFound": "Book with id 999 not found",
+      "imageNotFound": "Image with id 999 not found",
+      "imageFileNotFound": "Image file not found",
+      "isbnExists": "Book with this ISBN already exists",
+      "noCopiesAvailable": "No copies available to borrow",
+      "notBorrowed": "You have not borrowed this book",
+      "allReturned": "All copies are already returned",
+      "borrowRecordNotFound": "ไม่พบรายการยืมที่ยังไม่คืน"
+    }
+  },
+  "fileUpload": {
+    "validJpeg": {
+      "filename": "test-1234567890.jpg",
+      "originalname": "cover.jpg",
+      "mimetype": "image/jpeg",
+      "size": 102400
+    },
+    "validPng": {
+      "filename": "test-1234567891.png",
+      "originalname": "cover.png",
+      "mimetype": "image/png",
+      "size": 204800
+    },
+    "invalidType": {
+      "filename": "test.pdf",
+      "originalname": "document.pdf",
+      "mimetype": "application/pdf",
+      "size": 1024
+    }
+  }
+}

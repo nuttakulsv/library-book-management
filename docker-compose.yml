@@ -1,0 +1,63 @@
+services:
+  postgres:
+    networks:
+      - book-library
+    image: postgres:16-alpine
+    container_name: book-library-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: library
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./book-library-backend
+      dockerfile: Dockerfile
+    container_name: book-library-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: library
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-book-library-secret-change-in-production}
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend_uploads:/app/uploads
+    networks:
+      - book-library
+
+  frontend:
+    build:
+      context: ./book-library-frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    container_name: book-library-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - book-library
+
+networks:
+  book-library:
+    driver: bridge
+
