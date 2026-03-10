@@ -162,6 +162,8 @@ npm test
 
 ## ถ้ามีเวลามากขึ้นจะปรับปรุงอะไร
 
+-สิ่งที่ขาดไม่ได้เลย คือ Concept ของระบบจริงๆของห้องสมุด เช่น Dewey Decimal Classification (DDC) , Library of Congress Classification (LCC) และ อื่นๆเป็นต้น (ห้องในสมุดในไทยส่วนใหญ่ใช้ Dewey) ซึ่งถ้ามีเวลามากพอ จะต้องคุยกับ Expert Domainทางด้านี้ เพื่อ Drive Projectนี้ไปในทิศทางของการทำ DDD (Domain Driven Design) เพื่อให้ Projectออกมาในรูปแบบที่ดีและเหมาะสมกับผู้ใช้งาน  
+
 -การเก็บรูปปกหนังสือ
 ตอนนี้เก็บไว้ที่ local (./uploads) ซึ่งเหมาะกับการ demo หรือ run เครื่องเดียว แต่ถ้าระบบต้อง scale หลาย instance รูปจะไม่ถูกแชร์กัน ควรย้ายไปเก็บบน object storage เช่น S3 หรือ MinIO แทน (ถ้าอยากติดตั้งง่าย MinIO เวอร์ชันประมาณปี 2023 จะตั้ง public bucket ได้ค่อนข้างสะดวก)
 
